@@ -16,6 +16,10 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 		<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
 		<script>
+			const hiddentext = "<i>hidden</i>";
+			const showtext = "Show it";
+			const hidetext = "Hide it";
+
 			//The purposes mentioned on the site.
 			//  'text' is what is visible
 			//  'purpose' is what will be used as input for the calculations
@@ -28,6 +32,36 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				{purpose:"somesite", extrapurpose:"somesite.com", text: "to login at "},
 				{purpose:"something", extrapurpose:"some purpose", text: "for "},
 			];
+
+			//hide all passwords, set all buttons to show it
+			function hideall() {
+				var buttons = document.getElementsByClassName("showhide");
+				var passfields = document.getElementsByClassName("passfield");
+				for(var i=0; i<buttons.length; i++) {
+					buttons[i].innerHTML = showtext;
+					passfields[i].innerHTML = hiddentext;
+				}
+			}
+
+			//hide the password for purpose if it's shown and set the button to 'show it', returns false it it was already hidden, true if it was originally visible
+			function hideifshown(purpose) {
+				var passfield = document.getElementById(purpose);
+				var showhidebutton = document.getElementById('showhide' + purpose);
+				if(showhidebutton.innerHTML == hidetext) {
+					passfield.innerHTML = hiddentext;
+					showhidebutton.innerHTML = showtext;
+					return true;
+				}
+				return false;
+			}
+
+			//calculate and show the password if it's hidden otherwise hide it
+			function showhide(linenr) {
+				var purpose = purposes[linenr].purpose;
+				var showhidebutton = document.getElementById('showhide' + purpose);
+				if(hideifshown(purpose)) return;
+				showhidebutton.innerHTML = hidetext;
+			}
 		</script>
 		<title>PassCalc: The Password Calculator</title>
 		<style>
@@ -119,11 +153,13 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			alllines = alllines + '<div class="passfield" id="' + purposes[i].purpose + '"></div>';
 			alllines = alllines + '</td>';
 			alllines = alllines + '<td>';
+			alllines = alllines + '<button class="showhide" id="showhide' + purposes[i].purpose + '" onclick="showhide(' + i  + ')"></button>';
 			alllines = alllines + '<button id="copy' + purposes[i].purpose + '">Copy it</button>';
 			alllines = alllines + '</td>';
 			alllines = alllines + '</tr>';
 		}
 		document.getElementById("allpasslines").innerHTML=alllines
+		hideall();
 		</script>
 	</body>
 </html>
