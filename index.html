@@ -9,13 +9,36 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
+		<link href="https://fonts.googleapis.com/css?family=Kanit" rel="preload" as "style">
+		<link href="https://fonts.googleapis.com/css?family=Kanit" rel="stylesheet">
 		<title>PassCalc: The Password Calculator</title>
+		<style>
+			/* Master password table */
+			#masterpasstable { width: 500px; padding: 0px; margin: auto; font-family: Kanit;}
+			#masterpasstable li { padding: 8px; display: flex; margin-bottom: 32px; background-color: #aaaaaa; box-shadow: 8px 8px 8px 8px rgba(0,0,0,0.8); border-radius:10px; }
+			#masterpasstable li #description { flex-basis: 62%; text-align: right; margin: auto; }
+			#masterpasstable li #description #extrainfo { text-align: center; font-size: small; font-style: italic; }
+			#masterpasstable li #empty { flex-basis: 3%; text-align: right; margin: auto; }
+			#masterpasstable li input { flex-basis: 55%; margin: auto; }
+		</style>
 	</head>
 	<body>
 		<center>
 			<h1>PassCalc: The Password Calculator</h1>
-			<div style="flex-direction:row;">Master password:<input type="password" id="master"/></div>
-			<div style="flex-direction:row;">Confirm master password <i>(optional)</i>:<input type="password" id="master2"/></div>
+		</center>
+		<ul id="masterpasstable">
+			<li>
+				<div id="description">Master password:</div>
+				<div id="empty"></div>
+				<input type="password" id="master"/>
+			</li>
+			<li>
+				<div id="description">Confirm master password:<br><div id="extrainfo">(optional, but recommended)</div></div>
+				<div id="empty"></div>
+				<input type="password" id="master2"/>
+			</li>
+		</ul>
+		<center>
 			The password for http(s)://(www)<input type="text"></input>.{com, org, ...}/somepage is:<br>
 			<input type="text"></input>
 		</center>
