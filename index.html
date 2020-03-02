@@ -22,6 +22,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			//You might want to change the seeds if you run your own version (extra security)
 			const purposeseed="hDFGUg2coBkaLHzEBf1Y";
 
+			const passlength=16;	//Change this for shorter/longer passwords
 			const hiddentext = "<i>hidden</i>";
 			const showtext = "Show it";
 			const hidetext = "Hide it";
@@ -59,6 +60,13 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			function makepass(linenr) {
 				var completepurpose = String(purposes[linenr].purpose) + String(purposes[linenr].extrapurpose);
 				var result = sha512loop(purposeseed, document.getElementById("master").value + completepurpose, 1000);
+				//re-hash until reqs are met: at least 1 number, at least 1 captital char, at least regular char
+				//and at least 1 symbol (can only be '\' or '+' in base64) and these should all appear in the first 'passlength' characters
+				while( ! ( result.substr(0,passlength).match(/\d/) && result.substr(0,passlength).match(/[A-Z]/) && result.substr(0,passlength).match(/[a-z]/) && result.substr(0,passlength).match(/[\-\+]/)) ) {
+					hash = new jsSHA("SHA-512", "TEXT");
+					hash.update(result);
+					result = hash.getHash("B64");
+				}
 				//place the pass in memory
 				purposes[linenr].pass = result;
 			}
