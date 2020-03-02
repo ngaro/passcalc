@@ -31,6 +31,19 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 		</script>
 		<title>PassCalc: The Password Calculator</title>
 		<style>
+			/* Background */
+			body { background-color: #131518; }
+			body:after {
+				content : "";
+				position: absolute;
+				top: 0; left: 0;
+				background-image: url("hexagon.jpg");
+				filter: brightness(20%);
+				width: 100%; height: 100%;
+				opacity : 0.95;
+				z-index: -1;
+			}
+
 			/* Title */
 			h1 { text-align: center; font-family: 'Special Elite', cursive; font-size: 400%; color: #c02020; }
 
