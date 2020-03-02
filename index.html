@@ -38,6 +38,14 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				{purpose:"something", extrapurpose:"some purpose", text: "for "},
 			];
 
+			//calculate the password on linenr linenr
+			function makepass(linenr) {
+				var completepurpose = String(purposes[linenr].purpose) + String(purposes[linenr].extrapurpose);
+				//TODO full passwordcreation
+				//place the pass in memory
+				purposes[linenr].pass = completepurpose;
+			}
+
 			//hide all passwords, set all buttons to show it
 			function hideall() {
 				var buttons = document.getElementsByClassName("showhide");
@@ -84,6 +92,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				var showhidebutton = document.getElementById('showhide' + purpose);
 				if(hideifshown(purpose)) return;
 				if(checkmaster() == false) return;
+				makepass(linenr);
 				passfield.innerHTML = purposes[linenr].pass;
 				showhidebutton.innerHTML = hidetext;
 			}
@@ -91,6 +100,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			//calculate and copy the password
 			function copypass(linenr) {
 				if(checkmaster() == false) return;
+				makepass(linenr);
 				//create a unvisible element in the webpage where the password is written
 				var dummy = document.createElement("textarea");
 				document.body.appendChild(dummy);
