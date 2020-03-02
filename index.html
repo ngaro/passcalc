@@ -85,6 +85,14 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				if(checkmaster() == false) return;
 				showhidebutton.innerHTML = hidetext;
 			}
+
+			//hide password based on a inputfield when changing it and update the extrapurpose var
+			function updateinput(linenr) {
+				var purpose = purposes[linenr].purpose;
+				hideifshown(purpose);
+				var inputfield = document.getElementById(purpose + 'input');
+				purposes[linenr].extrapurpose = inputfield.value;
+			}
 		</script>
 		<title>PassCalc: The Password Calculator</title>
 		<style>
@@ -173,7 +181,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			alllines = alllines + '<td>';
 			alllines = alllines + '... ' + purposes[i].text;
 			if(purposes[i].extrapurpose!="") {
-				alllines = alllines + '<input type="text" id="' + purposes[i].purpose + 'input" value="' + purposes[i].extrapurpose + '"/>';
+				alllines = alllines + '<input type="text" id="' + purposes[i].purpose + 'input" value="' + purposes[i].extrapurpose + '" onkeyup="updateinput(' + i + ');"/>';
 			}
 			alllines = alllines + '</td>';
 			alllines = alllines + '<td id="passwordtd">';
