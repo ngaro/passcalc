@@ -13,6 +13,20 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 		<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="preload" as "style">
 		<link href="https://fonts.googleapis.com/css?family=Kanit" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet">
+		<script>
+			//The purposes mentioned on the site.
+			//  'text' is what is visible
+			//  'purpose' is what will be used as input for the calculations
+			//  'extrapurpose' will be textbox to detail the purpose, it will be appended to purpose
+			var purposes = [
+				{purpose:"ownmail", extrapurpose:"", text: "to access my home e-mail"},
+				{purpose:"workmail", extrapurpose:"", text: "to access my work e-mail"},
+				{purpose:"bank", extrapurpose:"", text: "to login at the site of my bank"},
+				{purpose:"ssh", extrapurpose:"", text: "on my ssh-keypair"},
+				{purpose:"somesite", extrapurpose:"somesite.com", text: "to login at "},
+				{purpose:"something", extrapurpose:"some purpose", text: "for "},
+			];
+		</script>
 		<title>PassCalc: The Password Calculator</title>
 		<style>
 			/* Title */
@@ -41,9 +55,34 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				<input type="password" id="master2"/>
 			</li>
 		</ul>
-		<center>
-			The password for http(s)://(www)<input type="text"></input>.{com, org, ...}/somepage is:<br>
-			<input type="text"></input>
-		</center>
+		<table id="passtable">
+			<thead>
+				<tr>
+					<th>I want a password ...</th><th>It's ...</th><th>I want to ...</th>
+				</tr>
+			</thead>
+			<tbody id="allpasslines">
+			</tbody>
+		</table>
+		<script>
+		var alllines = "";
+		for(var i=0; i<purposes.length; i++) {
+			alllines = alllines + '<tr>'
+			alllines = alllines + '<td>';
+			alllines = alllines + '... ' + purposes[i].text;
+			if(purposes[i].extrapurpose!="") {
+				alllines = alllines + '<input type="text" id="' + purposes[i].purpose + 'input" value="' + purposes[i].extrapurpose + '"/>';
+			}
+			alllines = alllines + '</td>';
+			alllines = alllines + '<td id="passwordtd">';
+			alllines = alllines + '<div class="passfield" id="' + purposes[i].purpose + '"></div>';
+			alllines = alllines + '</td>';
+			alllines = alllines + '<td>';
+			alllines = alllines + '<button id="copy' + purposes[i].purpose + '">Copy it</button>';
+			alllines = alllines + '</td>';
+			alllines = alllines + '</tr>';
+		}
+		document.getElementById("allpasslines").innerHTML=alllines
+		</script>
 	</body>
 </html>
