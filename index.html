@@ -23,6 +23,8 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			const purposeseed="hDFGUg2coBkaLHzEBf1Y";
 
 			const passlength=16;	//Change this for shorter/longer passwords
+			const specchar1 = "_";    //replaces / (a slash can give problems on certain websites)
+			const specchar2 = "-";    //replaces + (a plus can give problems on certain websites)
 			const hiddentext = "<i>hidden</i>";
 			const showtext = "Show it";
 			const hidetext = "Hide it";
@@ -67,6 +69,10 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 					hash.update(result);
 					result = hash.getHash("B64");
 				}
+				//shrink the password to passlength and replace the special chars by special chars more websites accept
+				result = result.substr(0, passlength);
+				result = result.replace(/\//g, specchar1);
+				result = result.replace(/\+/g, specchar2);
 				//place the pass in memory
 				purposes[linenr].pass = result;
 			}
