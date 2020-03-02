@@ -21,6 +21,8 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			const hiddentext = "<i>hidden</i>";
 			const showtext = "Show it";
 			const hidetext = "Hide it";
+			const nomasterwarn = "Master password still needs to be entered";
+			const wrongmasterwarn = "Master password differs from it's confirmation";
 
 			//The purposes mentioned on the site.
 			//  'text' is what is visible
@@ -45,6 +47,23 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				}
 			}
 
+			//true if the masterpass is entered and the confirmation is empty or equal. Otherwise (no master or 2 different masters): hide all passwords, display a warning, return false
+			function checkmaster() {
+				var master = document.getElementById("master").value;
+				var masterconfirm = document.getElementById("master2").value;
+				if(master != "" && (masterconfirm == "" || master == masterconfirm)) {
+					document.getElementById("warning").innerHTML = "";
+					return true;
+				}
+				hideall();
+				if(document.getElementById("master").value == "") {
+					document.getElementById("warning").innerHTML = nomasterwarn;
+				} else {
+					document.getElementById("warning").innerHTML = wrongmasterwarn;
+				}
+				return false;
+			}
+
 			//hide the password for purpose if it's shown and set the button to 'show it', returns false it it was already hidden, true if it was originally visible
 			function hideifshown(purpose) {
 				var passfield = document.getElementById(purpose);
@@ -62,6 +81,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				var purpose = purposes[linenr].purpose;
 				var showhidebutton = document.getElementById('showhide' + purpose);
 				if(hideifshown(purpose)) return;
+				if(checkmaster() == false) return;
 				showhidebutton.innerHTML = hidetext;
 			}
 		</script>
@@ -135,7 +155,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				<input type="password" id="master2" onkeyup="hideall();"/>
 			</li>
 		</ul>
-		<div id="warning">Test warning</div>
+		<div id="warning"></div>
 		<table id="passtable">
 			<thead>
 				<tr>
