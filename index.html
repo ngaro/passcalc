@@ -86,6 +86,19 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				showhidebutton.innerHTML = hidetext;
 			}
 
+			//calculate and copy the password
+			function copypass(linenr) {
+				if(checkmaster() == false) return;
+				//create a unvisible element in the webpage where the password is written
+				var dummy = document.createElement("textarea");
+				document.body.appendChild(dummy);
+				dummy.value = purposes[linenr].pass;
+				//copy the password from there to the clipboard and remove the element
+				dummy.select();
+				document.execCommand("copy");
+				document.body.removeChild(dummy);
+			}
+
 			//hide password based on a inputfield when changing it and update the extrapurpose var
 			function updateinput(linenr) {
 				var purpose = purposes[linenr].purpose;
@@ -189,7 +202,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			alllines = alllines + '</td>';
 			alllines = alllines + '<td>';
 			alllines = alllines + '<button class="showhide" id="showhide' + purposes[i].purpose + '" onclick="showhide(' + i  + ')"></button>';
-			alllines = alllines + '<button id="copy' + purposes[i].purpose + '">Copy it</button>';
+			alllines = alllines + '<button class="copy" id="copy' + purposes[i].purpose + '" onclick="copypass(' + i  + ')">Copy it</button>';
 			alllines = alllines + '</td>';
 			alllines = alllines + '</tr>';
 		}
