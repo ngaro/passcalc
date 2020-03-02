@@ -80,9 +80,11 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			//calculate and show the password if it's hidden otherwise hide it
 			function showhide(linenr) {
 				var purpose = purposes[linenr].purpose;
+				var passfield = document.getElementById(purpose);
 				var showhidebutton = document.getElementById('showhide' + purpose);
 				if(hideifshown(purpose)) return;
 				if(checkmaster() == false) return;
+				passfield.innerHTML = purposes[linenr].pass;
 				showhidebutton.innerHTML = hidetext;
 			}
 
