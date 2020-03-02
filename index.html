@@ -23,6 +23,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			const masterseed="VbSlxuc5vmgfDtuTtfED";
 			const purposeseed="hDFGUg2coBkaLHzEBf1Y";
 			const iterationseed="tdO1c2XKaZlrqfCgopxI";
+			const finalseed="vU84GBdp4qsQm0y2vtzu";
 
 			const masteriterations=1000;	//the exact number of iterations the masterpass will use in sha512loop()
 			const minimumiterations=1000;	//the minimum and maximum number of iterations (the real value will differ and will be based on 1 calculation)
@@ -73,16 +74,20 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				hash.update(iterationseed + masterhash + completepurpose);
 				var iterationhash = hash.getHash("HEX");
 				var iterations = minimumiterations + ( parseInt(iterationhash, 16) % (maximumiterations - minimumiterations) );
-				//step 3: calculate the the resulting password
-				var result = sha512loop(purposeseed, masterhash + completepurpose, iterations);
-				//re-hash until reqs are met: at least 1 number, at least 1 captital char, at least regular char
+				//step 3: calculate a hash of the purpose
+				hash = new jsSHA("SHA-512", "TEXT");
+				hash.update(purposeseed + completepurpose);
+				var purposehash = hash.getHash("B64");
+				//step 4: hash the "step 1" and "step 3" combination "step 2" amount of times
+				var result = sha512loop(finalseed, masterhash + purposehash, iterations);
+				//step 5: re-hash until reqs are met: at least 1 number, at least 1 captital char, at least regular char
 				//and at least 1 symbol (can only be '\' or '+' in base64) and these should all appear in the first 'passlength' characters
 				while( ! ( result.substr(0,passlength).match(/\d/) && result.substr(0,passlength).match(/[A-Z]/) && result.substr(0,passlength).match(/[a-z]/) && result.substr(0,passlength).match(/[\-\+]/)) ) {
 					hash = new jsSHA("SHA-512", "TEXT");
 					hash.update(result);
 					result = hash.getHash("B64");
 				}
-				//shrink the password to passlength and replace the special chars by special chars more websites accept
+				//step 6: shrink the password to passlength and replace the special chars by special chars more websites accept
 				result = result.substr(0, passlength);
 				result = result.replace(/\//g, specchar1);
 				result = result.replace(/\+/g, specchar2);
