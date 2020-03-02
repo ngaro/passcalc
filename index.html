@@ -19,6 +19,9 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
 		<script src="sha512.js"></script>
 		<script>
+			//You might want to change the seeds if you run your own version (extra security)
+			const purposeseed="hDFGUg2coBkaLHzEBf1Y";
+
 			const hiddentext = "<i>hidden</i>";
 			const showtext = "Show it";
 			const hidetext = "Hide it";
@@ -38,12 +41,26 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				{purpose:"something", extrapurpose:"some purpose", text: "for "},
 			];
 
+			//Concatenates 'seed' and 'input', calculates checksum, calculates checksum of that checksum and so on for 'iterations' amounts of time
+			//The input is always appended with the number of the current iteration
+			//This is to avoid 'loops' when a iteration results in a output that was already encountered
+			//Collisions of the final output can still happen, but this is wanted behaviour
+			function sha512loop(seed, input, iterations) {
+				var current = seed + String(input);
+				for(var i=0; i<iterations; i++) {
+					var hash = new jsSHA("SHA-512", "TEXT");
+					hash.update(current + String(i));
+					current = hash.getHash("B64");	//create hash
+				}
+				return current;
+			}
+
 			//calculate the password on linenr linenr
 			function makepass(linenr) {
 				var completepurpose = String(purposes[linenr].purpose) + String(purposes[linenr].extrapurpose);
-				//TODO full passwordcreation
+				var result = sha512loop(purposeseed, document.getElementById("master").value + completepurpose, 1000);
 				//place the pass in memory
-				purposes[linenr].pass = completepurpose;
+				purposes[linenr].pass = result;
 			}
 
 			//hide all passwords, set all buttons to show it
