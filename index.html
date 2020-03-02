@@ -11,8 +11,10 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 		<meta charset="utf-8" />
 		<link href="https://fonts.googleapis.com/css?family=Kanit" rel="preload" as "style">
 		<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="preload" as "style">
+		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="preload" as "style">
 		<link href="https://fonts.googleapis.com/css?family=Kanit" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
 		<script>
 			//The purposes mentioned on the site.
 			//  'text' is what is visible
@@ -39,6 +41,32 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			#masterpasstable li #description #extrainfo { text-align: center; font-size: small; font-style: italic; }
 			#masterpasstable li #empty { flex-basis: 3%; text-align: right; margin: auto; }
 			#masterpasstable li input { flex-basis: 55%; margin: auto; }
+
+			/* Passwords table */
+			#passtable { margin: auto; box-shadow: 8px 8px 8px 8px rgba(0,0,0,0.8); }
+			/* 	Heading */
+			#passtable th {
+				background: linear-gradient(#777, #444);
+				color: #fff;
+				padding: 10px 15px;
+				font-family: Kanit;
+			}
+			/*	Standard fields */
+			#passtable tr td { background: #e1e1e1; padding: 10px 15px; font-family: Kanit; }
+			/* 	Yes/No hovering */
+			#passtable tbody { color: #333; opacity: 0.8; }	/* No hovering at all */
+			#passtable tbody:hover { opacity: 1; }	/* Keep the opacity the same whether we hover over tbody or not */
+			/*		Lines */
+			#passtable tbody:hover tr { color: #333; opacity: 0.8; }	/* Lines where we don't hover (keeps it same as No "hovering at all" to prevent 'flashing' when hovering) */
+			#passtable tbody:hover tr:hover { color: #000; opacity: 1; }	/* Hovered line */
+			/*		Inputboxes */
+			#passtable tbody input { color: #333; opacity: 0.8; font-family: Kanit; }	/* Input-box on non hovered line */
+			#passtable tbody:hover tr:hover input { color: #000; opacity: 1; }	/* Input-box on hovered line */
+			/*		Buttons */
+			#passtable tbody button { color: #333; opacity: 0.8; font-family: Kanit; }	/* Button on non hovered line */
+			#passtable tbody:hover tr:hover button { color: #000; opacity: 1; }	/* Button on hovered line */
+			/*	Passwords */
+			#passtable #passwordtd { font-family: 'Roboto Mono'; font-weight: bold; }
 		</style>
 	</head>
 	<body>
