@@ -10,9 +10,11 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 	<head>
 		<meta charset="utf-8" />
 		<link href="https://fonts.googleapis.com/css?family=Kanit" rel="preload" as "style">
+		<link href="https://fonts.googleapis.com/css?family=Finger+Paint" rel="preload" as "style">
 		<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="preload" as "style">
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="preload" as "style">
 		<link href="https://fonts.googleapis.com/css?family=Kanit" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Finger+Paint" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
 		<script>
@@ -89,6 +91,9 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			#masterpasstable li #empty { flex-basis: 3%; text-align: right; margin: auto; }
 			#masterpasstable li input { flex-basis: 55%; margin: auto; }
 
+			/* Error/warning */
+			#warning { margin: auto; text-align: center; color: #f00; font-family: 'Finger Paint', cursive; padding: 4vh; height: 0px; }
+
 			/* Passwords table */
 			#passtable { margin: auto; box-shadow: 8px 8px 8px 8px rgba(0,0,0,0.8); }
 			/* 	Heading */
@@ -130,6 +135,7 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 				<input type="password" id="master2" onkeyup="hideall();"/>
 			</li>
 		</ul>
+		<div id="warning">Test warning</div>
 		<table id="passtable">
 			<thead>
 				<tr>
