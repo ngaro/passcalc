@@ -20,8 +20,10 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 		<script src="sha512.js"></script>
 		<script>
 			//You might want to change the seeds if you run your own version (extra security)
+			const masterseed="VbSlxuc5vmgfDtuTtfED";
 			const purposeseed="hDFGUg2coBkaLHzEBf1Y";
 
+			const masteriterations=1000;	//the exact number of iterations the masterpass will use in sha512loop()
 			const passlength=16;	//Change this for shorter/longer passwords
 			const specchar1 = "_";    //replaces / (a slash can give problems on certain websites)
 			const specchar2 = "-";    //replaces + (a plus can give problems on certain websites)
@@ -61,7 +63,10 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 			//calculate the password on linenr linenr
 			function makepass(linenr) {
 				var completepurpose = String(purposes[linenr].purpose) + String(purposes[linenr].extrapurpose);
-				var result = sha512loop(purposeseed, document.getElementById("master").value + completepurpose, 1000);
+				//step 1: calculate a hash of the masterseed (use multiple iterations)
+				var masterhash = sha512loop(masterseed, document.getElementById("master").value, masteriterations);
+				//step 2: calculate the the resulting password
+				var result = sha512loop(purposeseed, masterhash + completepurpose, 1000);
 				//re-hash until reqs are met: at least 1 number, at least 1 captital char, at least regular char
 				//and at least 1 symbol (can only be '\' or '+' in base64) and these should all appear in the first 'passlength' characters
 				while( ! ( result.substr(0,passlength).match(/\d/) && result.substr(0,passlength).match(/[A-Z]/) && result.substr(0,passlength).match(/[a-z]/) && result.substr(0,passlength).match(/[\-\+]/)) ) {
