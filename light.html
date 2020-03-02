@@ -1,0 +1,249 @@
+<!--
+PassCalc Copyright (C) 2020 Nikolas Garofil
+
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it under certain conditions;
+For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<script src="sha512.js"></script>
+		<script>
+			//You might want to change the seeds if you run your own version (extra security)
+			const masterseed="VbSlxuc5vmgfDtuTtfED";
+			const purposeseed="hDFGUg2coBkaLHzEBf1Y";
+			const iterationseed="tdO1c2XKaZlrqfCgopxI";
+			const finalseed="vU84GBdp4qsQm0y2vtzu";
+
+			const masteriterations=1000;	//the exact number of iterations the masterpass will use in sha512loop()
+			const minimumiterations=1000;	//the minimum and maximum number of iterations (the real value will differ and will be based on 1 calculation)
+			const maximumiterations=10000;
+			const passlength=16;	//Change this for shorter/longer passwords
+			const specchar1 = "_";    //replaces / (a slash can give problems on certain websites)
+			const specchar2 = "-";    //replaces + (a plus can give problems on certain websites)
+			const hiddentext = "<i>hidden</i>";
+			const showtext = "Show it";
+			const hidetext = "Hide it";
+			const nomasterwarn = "Master password still needs to be entered";
+			const wrongmasterwarn = "Master password differs from it's confirmation";
+
+			//The purposes mentioned on the site.
+			//  'text' is what is visible
+			//  'purpose' is what will be used as input for the calculations
+			//  'extrapurpose' will be textbox to detail the purpose, it will be appended to purpose
+			var purposes = [
+				{purpose:"ownmail", extrapurpose:"", text: "to access my home e-mail"},
+				{purpose:"workmail", extrapurpose:"", text: "to access my work e-mail"},
+				{purpose:"bank", extrapurpose:"", text: "to login at the site of my bank"},
+				{purpose:"ssh", extrapurpose:"", text: "on my ssh-keypair"},
+				{purpose:"somesite", extrapurpose:"somesite.com", text: "to login at "},
+				{purpose:"something", extrapurpose:"some purpose", text: "for "},
+			];
+
+			//Concatenates 'seed' and 'input', calculates checksum, calculates checksum of that checksum and so on for 'iterations' amounts of time
+			//The input is always appended with the number of the current iteration
+			//This is to avoid 'loops' when a iteration results in a output that was already encountered
+			//Collisions of the final output can still happen, but this is wanted behaviour
+			function sha512loop(seed, input, iterations) {
+				var current = seed + String(input);
+				for(var i=0; i<iterations; i++) {
+					var hash = new jsSHA("SHA-512", "TEXT");
+					hash.update(current + String(i));
+					current = hash.getHash("B64");	//create hash
+				}
+				return current;
+			}
+
+			//calculate the password on linenr linenr
+			function makepass(linenr) {
+				var completepurpose = String(purposes[linenr].purpose) + String(purposes[linenr].extrapurpose);
+				//step 1: calculate a hash of the masterseed (use multiple iterations)
+				var masterhash = sha512loop(masterseed, document.getElementById("master").value, masteriterations);
+				//step 2: calculate the amount of times hashing of the master-purpose combination will occur
+				var hash = new jsSHA("SHA-512", "TEXT");
+				hash.update(iterationseed + masterhash + completepurpose);
+				var iterationhash = hash.getHash("HEX");
+				var iterations = minimumiterations + ( parseInt(iterationhash, 16) % (maximumiterations - minimumiterations) );
+				//step 3: calculate a hash of the purpose
+				hash = new jsSHA("SHA-512", "TEXT");
+				hash.update(purposeseed + completepurpose);
+				var purposehash = hash.getHash("B64");
+				//step 4: hash the "step 1" and "step 3" combination "step 2" amount of times
+				var result = sha512loop(finalseed, masterhash + purposehash, iterations);
+				//step 5: re-hash until reqs are met: at least 1 number, at least 1 captital char, at least regular char
+				//and at least 1 symbol (can only be '\' or '+' in base64) and these should all appear in the first 'passlength' characters
+				while( ! ( result.substr(0,passlength).match(/\d/) && result.substr(0,passlength).match(/[A-Z]/) && result.substr(0,passlength).match(/[a-z]/) && result.substr(0,passlength).match(/[\-\+]/)) ) {
+					hash = new jsSHA("SHA-512", "TEXT");
+					hash.update(result);
+					result = hash.getHash("B64");
+				}
+				//step 6: shrink the password to passlength and replace the special chars by special chars more websites accept
+				result = result.substr(0, passlength);
+				result = result.replace(/\//g, specchar1);
+				result = result.replace(/\+/g, specchar2);
+				//place the pass in memory
+				purposes[linenr].pass = result;
+			}
+
+			//hide all passwords, set all buttons to show it
+			function hideall() {
+				var buttons = document.getElementsByClassName("showhide");
+				var passfields = document.getElementsByClassName("passfield");
+				for(var i=0; i<buttons.length; i++) {
+					buttons[i].innerHTML = showtext;
+					passfields[i].innerHTML = hiddentext;
+				}
+			}
+
+			//true if the masterpass is entered and the confirmation is empty or equal. Otherwise (no master or 2 different masters): hide all passwords, display a warning, return false
+			function checkmaster() {
+				var master = document.getElementById("master").value;
+				var masterconfirm = document.getElementById("master2").value;
+				if(master != "" && (masterconfirm == "" || master == masterconfirm)) {
+					document.getElementById("warning").innerHTML = "";
+					return true;
+				}
+				hideall();
+				if(document.getElementById("master").value == "") {
+					document.getElementById("warning").innerHTML = nomasterwarn;
+				} else {
+					document.getElementById("warning").innerHTML = wrongmasterwarn;
+				}
+				return false;
+			}
+
+			//hide the password for purpose if it's shown and set the button to 'show it', returns false it it was already hidden, true if it was originally visible
+			function hideifshown(purpose) {
+				var passfield = document.getElementById(purpose);
+				var showhidebutton = document.getElementById('showhide' + purpose);
+				if(showhidebutton.innerHTML == hidetext) {
+					passfield.innerHTML = hiddentext;
+					showhidebutton.innerHTML = showtext;
+					return true;
+				}
+				return false;
+			}
+
+			//calculate and show the password if it's hidden otherwise hide it
+			function showhide(linenr) {
+				var purpose = purposes[linenr].purpose;
+				var passfield = document.getElementById(purpose);
+				var showhidebutton = document.getElementById('showhide' + purpose);
+				if(hideifshown(purpose)) return;
+				if(checkmaster() == false) return;
+				makepass(linenr);
+				passfield.innerHTML = purposes[linenr].pass;
+				showhidebutton.innerHTML = hidetext;
+			}
+
+			//calculate and copy the password
+			function copypass(linenr) {
+				if(checkmaster() == false) return;
+				makepass(linenr);
+				//create a unvisible element in the webpage where the password is written
+				var dummy = document.createElement("textarea");
+				document.body.appendChild(dummy);
+				dummy.value = purposes[linenr].pass;
+				//copy the password from there to the clipboard and remove the element
+				dummy.select();
+				document.execCommand("copy");
+				document.body.removeChild(dummy);
+			}
+
+			//hide password based on a inputfield when changing it and update the extrapurpose var
+			function updateinput(linenr) {
+				var purpose = purposes[linenr].purpose;
+				hideifshown(purpose);
+				var inputfield = document.getElementById(purpose + 'input');
+				purposes[linenr].extrapurpose = inputfield.value;
+			}
+		</script>
+		<title>PassCalc: The Password Calculator</title>
+		<style>
+			/* Background */
+			body { background-color: #131518; }
+
+			/* Title */
+			h1 { text-align: center; color: #c02020; }
+
+			/* Master password  table */
+			#masterpasstable { margin: auto; background: #e1e1e1; }
+			#masterpasstable #description { padding: 0px 0px; }
+			#masterpasstable #description #extrainfo { text-align: center; font-size: small; font-style: italic; }
+
+			/* Error/warning */
+			#warning { margin: auto; text-align: center; color: #f00; font-weight: bold; height: 3em; }
+
+			/* Passwords table */
+			#passtable { margin: auto; }
+			/* 	Heading */
+			#passtable th {
+				background: linear-gradient(#777, #444);
+				color: #fff;
+				padding: 10px 15px;
+			}
+			/*	Standard fields */
+			#passtable tr td { background: #e1e1e1; padding: 0px 0px; }
+			/* 	Yes/No hovering */
+			#passtable tbody { color: #333; opacity: 0.8; }	/* No hovering at all */
+			#passtable tbody:hover { opacity: 1; }	/* Keep the opacity the same whether we hover over tbody or not */
+			/*		Lines */
+			#passtable tbody:hover tr { color: #333; opacity: 0.8; }	/* Lines where we don't hover (keeps it same as No "hovering at all" to prevent 'flashing' when hovering) */
+			#passtable tbody:hover tr:hover { color: #000; opacity: 1; }	/* Hovered line */
+			/*		Inputboxes */
+			#passtable tbody input { color: #333; opacity: 0.8; }	/* Input-box on non hovered line */
+			#passtable tbody:hover tr:hover input { color: #000; opacity: 1; }	/* Input-box on hovered line */
+			/*		Buttons */
+			#passtable tbody button { color: #333; opacity: 0.8; }	/* Input-box on non hovered line */
+			#passtable tbody:hover tr:hover button { color: #000; opacity: 1; }	/* Input-box on hovered line */
+			#passtable #passwordtd { font-weight: bold; }
+		</style>
+	</head>
+	<body>
+		<h1>PassCalc: The Password Calculator</h1>
+		<table id="masterpasstable">
+			<tr>
+				<td id="description">Master password:</td>
+				<td><input type="password" id="master" onkeyup="hideall();"/></td>
+			</tr>
+			<tr>
+				<td id="description">Confirm master password:<br><div id="extrainfo">(optional, but recommended)</div></td>
+				<td><input type="password" id="master2" onkeyup="hideall();"/></td>
+			</tr>
+		</table>
+		<div id="warning"></div>
+		<table id="passtable">
+			<thead>
+				<tr>
+					<th>I want a password ...</th><th>It's ...</th><th>I want to ...</th>
+				</tr>
+			</thead>
+			<tbody id="allpasslines">
+			</tbody>
+		</table>
+		<script>
+		var alllines = "";
+		for(var i=0; i<purposes.length; i++) {
+			alllines = alllines + '<tr>'
+			alllines = alllines + '<td>';
+			alllines = alllines +  purposes[i].text;
+			if(purposes[i].extrapurpose!="") {
+				alllines = alllines + '<input type="text" id="' + purposes[i].purpose + 'input" value="' + purposes[i].extrapurpose + '" onkeyup="updateinput(' + i + ');"/>';
+			}
+			alllines = alllines + '</td>';
+			alllines = alllines + '<td id="passwordtd">';
+			alllines = alllines + '<div class="passfield" id="' + purposes[i].purpose + '"></div>';
+			alllines = alllines + '</td>';
+			alllines = alllines + '<td>';
+			alllines = alllines + '<button class="showhide" id="showhide' + purposes[i].purpose + '" onclick="showhide(' + i  + ')"></button>';
+			alllines = alllines + '<button class="copy" id="copy' + purposes[i].purpose + '" onclick="copypass(' + i  + ')">Copy it</button>';
+			alllines = alllines + '</td>';
+			alllines = alllines + '</tr>';
+		}
+		document.getElementById("allpasslines").innerHTML=alllines
+		hideall();
+		</script>
+	</body>
+</html>
