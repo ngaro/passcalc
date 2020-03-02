@@ -8,13 +8,14 @@ For details see https://www.gnu.org/licenses/gpl-3.0-standalone.html
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>PassCalc: The Password Calculator</title>
 		<meta charset="utf-8" />
+		<title>PassCalc: The Password Calculator</title>
 	</head>
 	<body>
 		<center>
 			<h1>PassCalc: The Password Calculator</h1>
-			Master password:<input type="password"></input><br>
+			<div style="flex-direction:row;">Master password:<input type="password" id="master"/></div>
+			<div style="flex-direction:row;">Confirm master password <i>(optional)</i>:<input type="password" id="master2"/></div>
 			The password for http(s)://(www)<input type="text"></input>.{com, org, ...}/somepage is:<br>
 			<input type="text"></input>
 		</center>
