@@ -1,0 +1,136 @@
+%Based on a template of Adam Glesser (adamglesser@gmail.com)
+%CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+%\usepackage{amsmath}
+%\usepackage{amsfonts}
+%\usepackage{amssymb}
+\usepackage[margin=1in]{geometry} % Required to make the margins smaller to fit more content on each page
+\usepackage[linkcolor=blue]{hyperref} % Required to create hyperlinks to questions from elsewhere in the document
+\hypersetup{pdfborder={0 0 0}, colorlinks=true, urlcolor=blue} % Specify a color for hyperlinks
+\usepackage{todonotes} % Required for the boxes that questions appear in
+\usepackage{tocloft} % Required to give customize the table of contents to display questions
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+\usepackage{palatino} % Use the Palatino font
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+% Create and define the list of questions
+\newlistof{questions}{faq}{\large Choose what you want to know:} % This creates a new table of contents-like environment that will output a file with extension .faq
+\setlength\cftbeforefaqtitleskip{4em} % Adjusts the vertical space between the title and subtitle
+\setlength\cftafterfaqtitleskip{1em} % Adjusts the vertical space between the subtitle and the first question
+\setlength\cftparskip{.3em} % Adjusts the vertical space between questions in the list of questions
+
+% Create the command used for questions
+\newcommand{\question}[1] % This is what you will use to create a new question
+{
+\refstepcounter{questions} % Increases the questions counter, this can be referenced anywhere with \thequestions
+\par\noindent % Creates a new unindented paragraph
+\phantomsection % Needed for hyperref compatibility with the \addcontensline command
+\addcontentsline{faq}{questions}{#1} % Adds the question to the list of questions
+\todo[inline, color=green!40]{\textbf{#1}} % Uses the todonotes package to create a fancy box to put the question
+\vspace{1em} % White space after the question before the start of the answer
+}
+
+% Uncomment the line below to get rid of the trailing dots in the table of contents
+\renewcommand{\cftdot}{}
+
+% Uncomment the two lines below to get rid of the numbers in the table of contents
+\let\Contentsline\contentsline
+\renewcommand\contentsline[3]{\Contentsline{#1}{#2}{}}
+\newcommand{\numquestion}[1]{\question{\thequestions. #1}}
+
+\begin{document}
+\begin{center}\Huge{\bf PassCalc: The Password Calculator}\\\Large{The full documentation of PassCalc that tries to:}\\\large{\emph{Explain the usage, Answer the frequently asked questions, Explain the cryptography/math/innnerworkings and that discusses it's (dis)advantages}}\end{center}
+\listofquestions
+\numquestion{What is PassCalc ?}
+PassCalc has the same purpose as a passwordmanager: It makes sure that you only have to remember 1 password but still have different passwords for every site. The difference compared to a passwordmanager is that it does not save the passwords anywhere. Not on your computer (like KeePass does), not on a remote server (like LastPass) does.
+\numquestion{If the passwords are not saved, then how can PassCalc tell them to me?}
+PassCalc does a series of calculations based on your masterpassword and the sitename for which you want to know the password. Because the type of calculations, the sitename and your masterpassword don't change the resulting password will also not change. Picture it like this: Suppose your masterpassword is the number 5, the sitename is the number 2 and the series of calculations is a simple addition. PassCalc will always return the number 7 as password for the site but it never has to save it. A attacker will also not be able to to find the password for site because without knowing your masterpassword he will not know which number should be added with 2. \textit{(Obviously this a extremely simplified version that has a gigantic amount of security-holes)}
+\numquestion{How should I use it ?}
+To create/show a new password for a site, enter your master password and optionally confirm\footnote{Confirmation is optional but is \textbf{strongly} suggested at passwordcreation. PassCalc saves no data so it has no way to know for sure that your masterpassword is correct. An incorrect masterpassword will generate a password that will be \emph{extremely} hard to recover.} it. Enter the sitename in the input-field for websites. You can now use either "show it" to show you the password it has created, or "copy it" to copy it without showing it\footnote{Always use "copy it" when you suspect others are watching}.
+\numquestion{What are the disadvantages ?}
+\begin{itemize}
+\item{If you lose your masterpassword, the only way to recover your passwords will be to start guessing it.} This is also the case with most passwordmanagers.
+\item{No other programmers, mathematicians or cryptographers have checked my code, math and algorithms (yet)}
+\item{Each password an attacker manages to retrieve will help him a \textit{tiny}\footnote{TODO calculate how much} bit to find the passwords of the others sites. This is a weakness that (most) regular passwordmanagers do not have. But if you check the math, you will see that in practice this is useless for the attacker}
+\end{itemize}
+\numquestion{What are the advantages compared to regular passwordmanagers ?}
+\begin{itemize}
+\item{The data of regular passwordmanagers can be accidentally (or on purpose by others) removed and all your passwords will be lost.}
+\item{Data of most regular passwordsmanagers can be stolen which makes an attack to find all passwords feasible.\footnote{The attacker can use a brute-force attack, all passwords will become visible once the master is correct. PassCalc does not know whether a master is correct so it won't show anything}}
+\item{Most offline and pretty much all online passwords are closed source. This means that it's really hard to check how they work (and if they are secure)}
+\item{You can use PassCalc to recover your passwords using every computer, this is not the case with offline passwordmanagers}
+\item{Online passwordmanagers can have downtime or they can completely shutdown. When this happens you won't be able to access your passwords (in the 2nd case they will even be lost forever). PassCalc can be copied and ran locally which makes sure this can't happen}
+\item{Online passwordmanagers require you to send/receive passwords over the internet. PassCalc uses clientsides scripting, so everything can be done locally.}
+\item{Passwordmanagers need a source of random data, on many systems this source is of low quality}
+\item{PassCalc contains no ads and is completely free}
+\item{PassCalc can be adjusted to your likings}
+\end{itemize}
+\numquestion{Doesn't the concept of PassCalc already exist ?}
+Yes, but others only use a slight variation of the basic idea:
+\begin{itemize}
+\item{Most use a encryption-function on the sitename with the masterpassword as password}
+\item{The rest concatenates the masterpassword and the sitename and run a hashfunction on the result}
+\end{itemize}
+(Slight variations exist, like cutting part of the result, converting the output to another encoding, turning the use of masterpassword and sitename around, \ldots)\\
+PassCalc instead has a more advanced algorithm that defeats many attack-vectors that are present in the other versions.
+\numquestion{How does PassCalc exactly work ?}
+All numbers and values of the seeds that mentioned below can be changed to your likings if you run PassCalc on your own system. This is even recommended, just make sure you never lose the settings if you change the defaults !
+\begin{enumerate}
+\item The seeds \emph{masterseed}, \emph{purposeseed}, \emph{iterationseed} and \emph{finalseed} are hardcoded in the code
+\item Your masterpassword and \emph{masterseed} are concatenated and the result is hashed\footnote{All hashing happens with the SHA-512 hash-function}. This hash is hashed again and the process continues for \emph{masteriterations} amount of times\footnote{To be more correct: The number of the current iteration will also be added to the input to make sure no inner-loops are formed (This would happen if the same input appears twice). The same thing is also done in other steps where hash-loops are used. To be even more precise, the amount of digits in the iterationcount is also preserved by adding 0's in front of it when necessary}. The default value of \emph{masteriterations} is 1000. We'll call the result \emph{masterhash}.
+\item \emph{Iterationseed}, \emph{masterhash} and the purpose\footnote{In most cases this will be the sitename, but PassCalc can also be used for passwords for other purposes then sites} are concatenated. This is hashed and the hash is transformed to a number. The modulus of this number after division by (\emph{maximumiterations - minimumiterations}) will be added to \emph{minimimumiterations} and the result is called \emph{purposeiterations}. The default values for \emph{minimumiterations} is 1000 and for \emph{maximumiterations} it's 10000
+\item \emph{purposeseed} and the sitename are concatenated and hashed, the result is named \emph{purposehash}
+\item \emph{finalseed}, \emph{purposehash} and \emph{masterhash} are concatenated and are hashed, the result will be hashed again and this is process is continued for \emph{purposeiterations} amount of times. The final hash is converted to BASE-64 and is called \emph{longpassword}.
+\item Until \emph{longpassword} meets the requirements (the first \emph{passlength} chars contain at least 1 capital, 1 lowercase, 1 number and 1 symbol) it's rehashed again and again. The default for \emph{passlength} is 16
+\item The ending chars of \emph{longpassword} are stripped so that \emph{passlength} chars, every slash is replaced by a underscore and every dot by a minus. And this is the password for that specific purpose.
+\end{enumerate}
+\numquestion{Can you explain the reasons for every step and the security they provide ?}
+I'll try and i'll also add the math explaining behind every step. But, first the 2 most important things you should know:
+\begin{enumerate}
+\item \large\textbf{Once the attacker manages to break into a site of which you don't know how they save passwords you can no longer rely on your password for \emph{that} site !}\normalsize\\For all you know the site saves your password as cleartext\ldots\\\small(Your masterpassword and passwords for all other sites will still be save.)
+\item \large\textbf{Once the attacker manages to steal your masterpassword \emph{all} your passwords should be considered compromised and have to be changed !!!}
+\end{enumerate}
+\begin{small}
+\small{}
+\end{small}
+\paragraph*{}
+First we'll define some things and give you some numbers:
+\begin{itemize}
+%\item{$E_m$: Entropy of the masterpassword ($m$). We'll assume that the the attacker is in possession of a list that contains $2^{E_m}$ passwords and that your masterpassword is one of them.}
+\item{$H_{a}, H_{y}$: Bits that can be hashed by the attacker ($a$) or you ($y$) using 1 core in 1 second.}
+\item{$C_{a}, C_{y}$: Cores the attacker or you possess for hashcalculations}
+\item{$ms, ps, is, fs$: masterseed, purposeseed, iterationseed, finalseed}
+\item{$l_x$: The length\footnote{Lengths are always counted in bits} of $x$}
+\item{$h$: a hash, $l_h=512$ because we are using SHA-512}
+\item{$i_m$: Amount of iterations used when calculating the masterhash}
+\item{$c_{xm}$: iterationcount $x$ of the masterhash calculations}
+%\item{$L$: The amount of reasonable possibilities of the masterpassword. The attacker will know that your password will not be "too difficult" (e.g. it won't contain thousands of characters that mix chinese with arabian and russian alphabets)}
+\end{itemize}
+\paragraph*{}
+\ldots\mbox{and now it's time for the questions with their logical and mathemical answers}
+
+%\mbox{\small{(We are always assuming that the attacker knows you are using PassCalc)}}
+\subparagraph{Why are you calculating the masterhash instead of using the masterpassword directly?\\}
+You'll notice that after calculating \emph{masterhash} in step 2 the masterpassword is never used again. This means that the attacker only needs \emph{masterhash} to find all other passwords. So it's a reasonable question\ldots\\But, some might also use their master passwords without PassCalc in other places and want to keep using it even if somehow the masterhash is compromised.\footnote{Using the same password (or passwords with a recognizable pattern) is a \emph{terrible} idea. But people will be people so we might as well take this into account\ldots} Also, if the masterhash it compromised, only a tiny change in your master password will be necessary for a completely different masterhash.
+\\\\Calculating the masterhash will take you $\frac{l_{ms}+l_m+l_{i_m}+(i_m-1)(l_{ms}+l_h+l_{i_m})}{H_y}$ seconds. ($C_y$ doesn't matter because every input will be unique and depends on the previous output.)
+\\\\Let's assume that attacker has a large advantage and that he:
+\begin{itemize}
+\item found out the masterhash. (In reality this is \emph{extremely} hard for him as will be shown later\footnote{\textbf{TODO}})
+\item knows $ms$ and $i_m$ (he \emph{will} know this unless you copied my webpage and placed it on a system of which you are that it can't be accessed by others)
+\end{itemize}
+The attacker now has 2 attack vectors:
+\begin{enumerate}
+\item The first possible attack vector would be for him to reverse your calculations:\\Finding all hashes $h_0$ for which $m_s||h_0||c_{{i_m}m}$ hashes to the masterhash, after that finding all hashes $h_1$ for which $m_s||h_1||c_{({i_m-1})m}$ hashes to a $h_0$ and so on\ldots\\Now for calculations: It will cost $\frac{(l_{ms}+l_h+l_{i_m})}{H_a}C_a$ seconds to find out all the valid $h_0$'s and the probability that there will be only 1 $h_0$ is $P(\textrm{only one }h_0)=(\frac{2^{l_h}-1}{2^{l_h}})^{2^{l_h}}$. Every iteration the changes of branching out will increase which will increase so if the attacker follows 1 branch, which will cost him $\frac{(l_{ms}+l_h+l_{i_m})}{H_a}C_a$ seconds.
+
+%2^512=2^{l_h}
+
+
+% After all that branching out there will be a gigantical %that hash to a $m_s||h||c_{im}$ and that hashes to that string and so on.\\Because every iterationcount (and thus every string) will be different, he won't be able to search for different strings at the same time. But, it will be possible for him to try multiple begin-strings for 1 end-string at the same time. He will have to try
+%\item The other attack vector would be to work in the same way as you did, which would cost him $\frac{i_m(l_{ms}+l_h)+l_{ms}+l_m}{H_a}\times\frac{L}{C_a}$ seconds (He can work parallel because he can try multiple possibilities of the list at the same time). If he wouldn't have the necessary memory to save the calculated hashes of earlier attempts.\\But... this assumes that he doesn't have the memory to save calculated hashes. Let's also give him the advantage of having all unlimited amounts of memory.
+\end{enumerate}
+\end{document}
