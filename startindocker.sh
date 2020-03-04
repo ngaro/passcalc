@@ -1,4 +1,6 @@
 #!/bin/bash
+if [ ! -x "$(command -v docker)" ] ; then echo "I can't find docker. Is it installed ?" > /dev/stderr ; exit 1 ;  fi
+if [ -f Dockerfile ] ; then echo "You have a file named 'Dockerfile'. Move it or it will be overwritten." ; exit 1 ; fi
 if [ -z $REBUILD ] ; then 		REBUILD="no"; fi
 if [ -z $IMAGENAME ] ; then 		IMAGENAME="passcalc"; fi
 if [ -z $CONTAINERNAME ] ; then 	CONTAINERNAME="passcalc"; fi
@@ -10,7 +12,9 @@ IMAGEEXISTS=$?	#This will be 0 if the image exists, otherwise it will be 1 (and 
 
 if [ $REBUILD != "no" ] || [ $IMAGEEXISTS -ne 0 ] ; then
 	echo -e "### Rebuilding the dockerimage. It will be named '$IMAGENAME' ###"
-	echo 'FROM alpine' > Dockerfile
+	touch Dockerfile
+	if [ ! -f Dockerfile ] ; then echo "I can't create 'Dockerfile'. Do you have the write permission in this dir ?" ; exit 1 ; fi
+	echo 'FROM alpine' >> Dockerfile
 	echo 'RUN apk add --update --no-cache lighttpd && rm -rf /var/cache/apk/*' >> Dockerfile
 	echo 'COPY hexagon.jpg index.html light.html sha512.js /var/www/localhost/htdocs/' >> Dockerfile
 	echo 'CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]' >> Dockerfile
