@@ -25,5 +25,9 @@ fi
 
 echo -e "### Starting the container. It will be named '$CONTAINERNAME' and will listen to port $HTTPPORT ###"
 if [ ! $EXTERNALLYREACHABLE == "no" ] ; then INTERFACE="0.0.0.0" ; else INTERFACE="127.0.0.1"; fi
-docker run -d --rm -p $INTERFACE:$HTTPPORT:80 --name $CONTAINERNAME $IMAGENAME
-echo -e "\n### It runs, you can stop it with 'docker stop $CONTAINERNAME' ###"
+docker run -d --rm -p $INTERFACE:$HTTPPORT:80 --name $CONTAINERNAME $IMAGENAME > /dev/null
+if [ $? -eq 0 ] ; then
+	echo -e "\n### It runs, you can stop it with 'docker stop $CONTAINERNAME' ###"
+else
+	echo -e "### Can't start the container. The errormessage above might tell you why ###"
+fi
