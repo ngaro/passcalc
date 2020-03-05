@@ -13,7 +13,9 @@ set(SRCDIR cmdline)
 #	endif()
 #endif()
 
-set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall -Wextra -pedantic")
+set(CMAKE_CXX_FLAGS "-march=native -Wall -Wextra -pedantic")
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -O0 -ggdb")
 
 aux_source_directory(${SRCDIR} SOURCECODE)
 add_executable(${PROGNAME} ${SOURCECODE})
