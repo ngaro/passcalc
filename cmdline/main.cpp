@@ -1,6 +1,11 @@
 #include <getopt.h>
 #include <iostream>
 
+#ifdef DEBUG
+#define showchardebug(varname) cerr << "DEBUG: '" << #varname << "' = '" << (char) varname << "'" << endl
+#define showdebug(varname) cerr << "DEBUG: '" << #varname << "' = '" << varname << "'" << endl
+#endif
+
 using namespace std;
 
 //possible commandline args
@@ -27,13 +32,21 @@ void showerror(int errorcode, const char* extrainfo) {
 }
 
 //send help to STDOUT, doesn't exit
-void showhelp() { cout << "TODO" << endl; }
+void showhelp() {
+#ifdef DEBUG
+	cerr << "TODO" << endl;
+#endif
+}
 
 //set settings and show errors for unknown args
 void args_to_settings(int argc, char **argv) {
 	int current_cmdarg;	//Although we use this for regular chars, getopt_long returns int's (also needed for the -1 check)
 	opterr = 0;	//Don't use the system's default errors
 	while ((current_cmdarg = getopt_long(argc, argv, short_options, long_options, NULL)) != -1) {
+#ifdef DEBUG
+		showchardebug(current_cmdarg);
+		showdebug(optind);
+#endif
 		switch(current_cmdarg) {
 		case 'h': settings.help = true; break;
 		default: optind--; showerror(1, argv[optind]);
